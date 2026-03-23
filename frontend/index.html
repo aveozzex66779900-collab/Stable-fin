@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>StableCoin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    .box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🚀 StableCoin Payment Dashboard</h1>
+
+  <!-- QR PAYMENT -->
+  <div class="box">
+    <h2>QR Payment</h2>
+    <canvas id="qrcode"></canvas>
+    <p id="paymentLink"></p>
+  </div>
+
+  <!-- WALLET -->
+  <div class="box">
+    <h2>Wallet Balance</h2>
+    <p>USDT: <span id="usdt">0</span></p>
+    <p>INR: ₹<span id="inr">0</span></p>
+    <button onclick="loadWallet()">Refresh Balance</button>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="box">
+    <h2>Transaction History</h2>
+    <ul id="transactions"></ul>
+    <button onclick="loadTransactions()">Load Transactions</button>
+  </div>
+
+
+  <!-- ADMIN PANEL -->
+<div class="box">
+  <h2>🛠 Admin Panel</h2>
+
+  <p>Total USDT: <span id="adminUsdt">0</span></p>
+  <p>Total INR: ₹<span id="adminInr">0</span></p>
+  <p>Total Transactions: <span id="adminTx">0</span></p>
+
+  <button onclick="loadAdmin()">Load Admin Data</button>
+</div>
+  
+<!-- B2B PAYMENT -->
+<div class="box">
+  <h2>🏢 B2B Payment</h2>
+
+  <input id="sender" placeholder="Sender Business" /><br><br>
+  <input id="receiver" placeholder="Receiver Business" /><br><br>
+  <input id="amount" type="number" placeholder="Amount (USDT)" /><br><br>
+
+  <button onclick="b2bPay()">Send Payment</button>
+</div>
+
+
+
+
+<!-- B2B PAYMENT -->
+<div class="box">
+  <h2>🏢 B2B Payment</h2>
+
+  <input id="sender" placeholder="Sender Business" /><br><br>
+  <input id="receiver" placeholder="Receiver Business" /><br><br>
+  <input id="amount" type="number" placeholder="Amount (USDT)" /><br><br>
+
+  <button onclick="b2bPay()">Send Payment</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- SCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+  <script>
+    const API = "http://localhost:8000";
+
+    // Generate QR
+    const paymentLink = API + "/pay/123";
+    document.getElementById("paymentLink").innerText = paymentLink;
+
+    QRCode.toCanvas(document.getElementById("qrcode"), paymentLink);
+
+    // Load wallet
+    async function loadWallet() {
+      try {
+        const res = await fetch(API + "/wallet");
+        const data = await res.json();
+
+        document.getElementById("usdt").innerText = data.usdt || 0;
+        document.getElementById("inr").innerText = data.inr || 0;
+      } catch (err) {
+        alert("Wallet error");
+      }
+    }
+
+    // Load transactions
+    async function loadTransactions() {
+      try {
+        const res = await fetch(API + "/transactions");
+        const data = await res.json();
+
+        const list = document.getElementById("transactions");
+        list.innerHTML = "";
+
+        data.forEach(tx => {
+          const li = document.createElement("li");
+          li.innerText = tx.amount + " USDT - " + tx.status;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        alert("Transaction error");
+      }
+    }
+
+    // ===== ADMIN PANEL FEATURE =====
+
+async function loadAdmin() {
+  try {
+    // get wallet
+    const walletRes = await fetch(API + "/wallet");
+    const wallet = await walletRes.json();
+
+    // get transactions
+    const txRes = await fetch(API + "/transactions");
+    const tx = await txRes.json();
+
+    // update UI
+    document.getElementById("adminUsdt").innerText = wallet.usdt;
+    document.getElementById("adminInr").innerText = wallet.inr;
+    document.getElementById("adminTx").innerText = tx.length;
+
+  } catch (err) {
+    console.log(err);
+    alert("Admin load error");
+  }
+}
+
+
+
+// ===== B2B PAYMENT FUNCTION =====
+async function b2bPay() {
+  const sender = document.getElementById("sender").value;
+  const receiver = document.getElementById("receiver").value;
+  const amount = parseFloat(document.getElementById("amount").value);
+
+  try {
+    const res = await fetch(API + "/b2b/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ sender, receiver, amount })
+    });
+
+    const data = await res.json();
+
+    alert(data.message || data.error);
+
+    // refresh existing features
+    loadWallet();
+    loadTransactions();
+
+  } catch (err) {
+    console.log(err);
+    alert("B2B payment error");
+  }
+}
+
+
+
+// ===== B2B PAYMENT FUNCTION =====
+async function b2bPay() {
+  const sender = document.getElementById("sender").value;
+  const receiver = document.getElementById("receiver").value;
+  const amount = parseFloat(document.getElementById("amount").value);
+
+  try {
+    const res = await fetch(API + "/b2b/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ sender, receiver, amount })
+    });
+
+    const data = await res.json();
+
+    alert(data.message || data.error);
+
+    loadWallet();
+    loadTransactions();
+
+  } catch (err) {
+    console.log(err);
+    alert("B2B error");
+  }
+}
+
+
+
+
+
+  </script>
+
+</body>
+</html>
