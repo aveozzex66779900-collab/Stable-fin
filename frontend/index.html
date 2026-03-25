@@ -30,6 +30,49 @@
     <p id="paymentLink"></p>
   </div>
 
+
+  <!-- QR PAYMENT -->
+<div class="box">
+  <h2>QR Payment</h2>
+  <canvas id="qrcode"></canvas>
+  <p id="paymentLink"></p>
+</div>
+
+<!-- PAYMENT LINK -->
+<div class="box">
+  <h2>🔗 Payment Link</h2>
+  
+  <input id="linkInput" style="width:100%; padding:8px;" readonly />
+  
+  <br><br>
+  
+  <button onclick="copyLink()">Copy Link</button>
+  <button onclick="openLink()">Open Link</button>
+</div>
+
+
+
+
+
+<!-- CRYPTO WALLET ID -->
+<div class="box">
+  <h2>💼 Crypto Wallet ID</h2>
+
+  <p>Your Wallet ID: <b id="walletId">Loading...</b></p>
+
+  <button onclick="loadWalletId()">Generate / Refresh ID</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
   <!-- WALLET -->
   <div class="box">
     <h2>Wallet Balance</h2>
@@ -44,8 +87,6 @@
     <ul id="transactions"></ul>
     <button onclick="loadTransactions()">Load Transactions</button>
   </div>
-
-
   <!-- ADMIN PANEL -->
 <div class="box">
   <h2>🛠 Admin Panel</h2>
@@ -56,7 +97,6 @@
 
   <button onclick="loadAdmin()">Load Admin Data</button>
 </div>
-  
 <!-- B2B PAYMENT -->
 <div class="box">
   <h2>🏢 B2B Payment</h2>
@@ -71,15 +111,35 @@
 
 
 
-<!-- B2B PAYMENT -->
+<!-- CRYPTO CONVERTER -->
 <div class="box">
-  <h2>🏢 B2B Payment</h2>
+  <h2>💱 Crypto Converter</h2>
 
-  <input id="sender" placeholder="Sender Business" /><br><br>
-  <input id="receiver" placeholder="Receiver Business" /><br><br>
-  <input id="amount" type="number" placeholder="Amount (USDT)" /><br><br>
+  <h4>USDT → INR</h4>
+  <input id="usdtAmount" type="number" placeholder="Enter USDT" />
+  <button onclick="convertUSDT()">Convert</button>
+  <p>INR: ₹<span id="inrResult">0</span></p>
 
-  <button onclick="b2bPay()">Send Payment</button>
+  <hr>
+
+  <h4>ETH → USD</h4>
+  <input id="ethAmount" type="number" placeholder="Enter ETH" />
+  <button onclick="convertETH()">Convert</button>
+  <p>USD: $<span id="usdResult">0</span></p>
+</div>
+
+
+
+
+
+
+<!-- REAL CRYPTO WALLET -->
+<div class="box">
+  <h2>💰 Real Crypto Wallet</h2>
+
+  <p>Address: <span id="realAddress">-</span></p>
+
+  <button onclick="createWallet()">Create Wallet</button>
 </div>
 
 
@@ -90,10 +150,7 @@
 
 
 
-
-
-
-  <!-- SCRIPT -->
+  <!-- QR LIB -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
   <script>
@@ -105,39 +162,117 @@
 
     QRCode.toCanvas(document.getElementById("qrcode"), paymentLink);
 
+
+
+
+  
+
+
+
+
+
+
+
     // Load wallet
     async function loadWallet() {
-      try {
-        const res = await fetch(API + "/wallet");
-        const data = await res.json();
+      const res = await fetch(API + "/wallet");
+      const data = await res.json();
 
-        document.getElementById("usdt").innerText = data.usdt || 0;
-        document.getElementById("inr").innerText = data.inr || 0;
-      } catch (err) {
-        alert("Wallet error");
-      }
+      document.getElementById("usdt").innerText = data.usdt;
+      document.getElementById("inr").innerText = data.inr;
     }
 
     // Load transactions
     async function loadTransactions() {
-      try {
-        const res = await fetch(API + "/transactions");
-        const data = await res.json();
+      const res = await fetch(API + "/transactions");
+      const data = await res.json();
 
-        const list = document.getElementById("transactions");
-        list.innerHTML = "";
+      const list = document.getElementById("transactions");
+      list.innerHTML = "";
 
-        data.forEach(tx => {
-          const li = document.createElement("li");
-          li.innerText = tx.amount + " USDT - " + tx.status;
-          list.appendChild(li);
-        });
-      } catch (err) {
-        alert("Transaction error");
-      }
+      data.forEach(tx => {
+        const li = document.createElement("li");
+        li.innerText = tx.amount + " USDT - " + tx.status;
+        list.appendChild(li);
+      });
     }
 
-    // ===== ADMIN PANEL FEATURE =====
+    // AUTO REFRESH WALLET
+    let lastCount = 0;
+
+setInterval(async () => {
+  const res = await fetch(API + "/transactions");
+  const data = await res.json();
+
+  if (data.length > lastCount) {
+    showSuccess();
+    loadWallet();
+    loadTransactions();
+  }
+
+  lastCount = data.length;
+}, 3000);
+
+function showSuccess() {
+  alert("✅ Payment Received!");
+}
+
+// ===== NEW FEATURE (SAFE ADD) =====
+
+let lastTransactionCount = 0;
+
+function showSuccessPopup() {
+  alert("✅ Payment Received!");
+}
+
+// Check for new transactions every 3 sec
+async function checkNewPayments() {
+  try {
+    const res = await fetch(API + "/transactions");
+    const data = await res.json();
+
+    if (data.length > lastTransactionCount) {
+      showSuccessPopup();
+      loadWallet();        // existing function
+      loadTransactions();  // existing function
+    }
+
+    lastTransactionCount = data.length;
+
+  } catch (err) {
+    console.log("Check error:", err);
+  }
+}
+
+// Start checking (DO NOT remove your existing setInterval)
+setInterval(checkNewPayments, 3000);
+
+
+// ===== NEW FEATURE: PAYMENT LINK =====
+
+// Generate link (reuse existing API)
+const shareLink = API + "/pay/123";
+
+// Set link in input box
+document.getElementById("linkInput").value = shareLink;
+
+// Copy link
+function copyLink() {
+  const input = document.getElementById("linkInput");
+  input.select();
+  document.execCommand("copy");
+  alert("✅ Link copied!");
+}
+
+// Open link
+function openLink() {
+  window.open(shareLink, "_blank");
+}
+
+
+
+
+// ===== ADMIN PANEL FEATURE =====
 
 async function loadAdmin() {
   try {
@@ -181,37 +316,6 @@ async function b2bPay() {
 
     alert(data.message || data.error);
 
-    // refresh existing features
-    loadWallet();
-    loadTransactions();
-
-  } catch (err) {
-    console.log(err);
-    alert("B2B payment error");
-  }
-}
-
-
-
-// ===== B2B PAYMENT FUNCTION =====
-async function b2bPay() {
-  const sender = document.getElementById("sender").value;
-  const receiver = document.getElementById("receiver").value;
-  const amount = parseFloat(document.getElementById("amount").value);
-
-  try {
-    const res = await fetch(API + "/b2b/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ sender, receiver, amount })
-    });
-
-    const data = await res.json();
-
-    alert(data.message || data.error);
-
     loadWallet();
     loadTransactions();
 
@@ -220,6 +324,69 @@ async function b2bPay() {
     alert("B2B error");
   }
 }
+
+
+// ===== WALLET ID FEATURE =====
+
+async function loadWalletId() {
+  try {
+    const res = await fetch(API + "/wallet/id");
+    const data = await res.json();
+
+    document.getElementById("walletId").innerText = data.walletId;
+
+  } catch (err) {
+    console.log(err);
+    alert("Wallet ID error");
+  }
+}
+
+// auto load on page open
+loadWalletId();
+
+
+
+// ===== REAL WALLET FUNCTION =====
+async function createWallet() {
+  try {
+    const res = await fetch(API + "/wallet/create");
+    const data = await res.json();
+
+    document.getElementById("realAddress").innerText = data.address;
+
+    console.log("PRIVATE KEY:", data.privateKey);
+
+  } catch (err) {
+    console.log(err);
+    alert("Wallet create error");
+  }
+}
+
+
+
+
+// ===== CRYPTO CONVERTER =====
+
+// USDT → INR (approx rate)
+function convertUSDT() {
+  const usdt = parseFloat(document.getElementById("usdtAmount").value);
+
+  const rate = 83; // 1 USDT ≈ ₹83
+  const result = usdt * rate;
+
+  document.getElementById("inrResult").innerText = result.toFixed(2);
+}
+
+// ETH → USD (approx rate)
+function convertETH() {
+  const eth = parseFloat(document.getElementById("ethAmount").value);
+
+  const rate = 3000; // 1 ETH ≈ $3000
+  const result = eth * rate;
+
+  document.getElementById("usdResult").innerText = result.toFixed(2);
+}
+
 
 
 
