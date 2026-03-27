@@ -14,3 +14,4 @@ router.use("/qrpay", qrpay_routes_1.default);
 router.use("/tickets", support_1.default);
 router.use("/affiliate", affiliate_routes_1.default);
 exports.default = router;
+//# sourceMappingURL=index.js.map

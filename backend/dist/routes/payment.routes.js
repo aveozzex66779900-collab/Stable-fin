@@ -13,3 +13,4 @@ router.post("/", (req, res) => {
 });
 router.post("/confirm", payment_controller_1.confirmPayment);
 exports.default = router;
+//# sourceMappingURL=payment.routes.js.map

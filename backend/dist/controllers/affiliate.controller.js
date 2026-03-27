@@ -8,3 +8,4 @@ const affiliateStats = (_, res) => {
     });
 };
 exports.affiliateStats = affiliateStats;
+//# sourceMappingURL=affiliate.controller.js.map

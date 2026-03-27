@@ -6,6 +6,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+app.get("/qr", (req, res) => {
+  const upiId = "yourupi@upi"; // 🔥 replace with your real UPI
+  const name = "Stable Fin";
+  const amount = "100";
+
+  const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR`;
+
+  res.json({
+    qr: upiLink
+  });
+});
+
+
+
+
+
 // ✅ TEST ROUTE
 app.get("/", (req, res) => {
   res.send("Backend is working 🚀");
@@ -21,10 +38,20 @@ app.get("/payment", (req, res) => {
 
 // ✅ QR ROUTE (test)
 app.get("/qr", (req, res) => {
+  const upiId = "yourupi@upi"; // 🔥 replace with real UPI
+  const name = "Stable Fin";
+  const amount = "100";
+
+  const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR`;
+
   res.json({
-    qr: "QR_CODE_DATA"
+    qr: upiLink
   });
 });
+
+
+
+
 
 app.get("/", (req, res) => {
   res.send("Backend Live ✅");
