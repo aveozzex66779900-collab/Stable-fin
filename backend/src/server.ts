@@ -4,8 +4,16 @@ import cors from "cors";
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
+
+
+
 
 /* ================= OLD FEATURES (DO NOT TOUCH) ================= */
 
