@@ -1,41 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Stable Fin</title>
+  <title>Stable Fin 💰</title>
 </head>
 <body>
 
-  <h1>💰 Stable Fin Payment System</h1>
+<h1>💰 Stable Fin Payment System</h1>
 
-  <button onclick="testPayment()">Test Payment API</button>
-  <button onclick="getQR()">Get QR Code</button>
+<button onclick="testAPI()">Test Payment API</button>
+<button onclick="getQR()">Old QR</button>
+<button onclick="getUPI()">UPI Payment</button>
+<button onclick="getCrypto()">Crypto Payment 🚀</button>
 
-  <pre id="output"></pre>
+<div id="output"></div>
+<div id="qr-container"></div>
 
-  <script>
-    const API_URL = "http://localhost:10000";
+<script>
+const API_URL = "https://stable-fin-backend-1.onrender.com";
 
-    async function testPayment() {
-      try {
-        const res = await fetch(API_URL + "/payment");
-        const data = await res.json();
-        document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("output").innerText = "Error: " + err;
-      }
-    }
+// Test API
+async function testAPI() {
+  const res = await fetch(`${API_URL}/payment`);
+  const data = await res.json();
+  document.getElementById("output").innerText = JSON.stringify(data);
+}
 
-    async function getQR() {
-      try {
-        const res = await fetch(API_URL + "/qr");
-        const data = await res.json();
-        document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("output").innerText = "Error: " + err;
-      }
-    }
-  </script>
+// Old QR
+async function getQR() {
+  const res = await fetch(`${API_URL}/qr`);
+  const data = await res.json();
+  document.getElementById("output").innerText = JSON.stringify(data);
+}
+
+// UPI QR
+async function getUPI() {
+  const res = await fetch(`${API_URL}/upi-qr`);
+  const data = await res.json();
+
+  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.qr)}`;
+
+  document.getElementById("qr-container").innerHTML = `
+    <h3>Scan & Pay (UPI)</h3>
+    <img src="${qrImage}" />
+  `;
+}
+
+// Crypto
+async function getCrypto() {
+  const res = await fetch(`${API_URL}/crypto-link`);
+  const data = await res.json();
+
+  window.open(data.link, "_blank");
+}
+</script>
 
 </body>
 </html>
