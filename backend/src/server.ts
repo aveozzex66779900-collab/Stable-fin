@@ -26,6 +26,10 @@ app.get("/qr", (req, res) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.send("Backend Live ✅");
+});
+
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
