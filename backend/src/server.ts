@@ -9,9 +9,11 @@ const app = express();
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
+  allowedHeaders: ["*"]
 }));
 
+// VERY IMPORTANT
+app.options("*", cors());
 
 
 app.use(express.json());
@@ -45,11 +47,15 @@ app.get("/upi-qr", (req, res) => {
 });
 
 // ✅ Crypto Payment Link
-app.get("/crypto-link", (req, res) => {
-  const cryptoLink = "https://commerce.coinbase.com/checkout/demo";
 
-  res.json({ link: cryptoLink });
+app.get("/crypto-link", (req, res) => {
+  res.json({
+    link: "https://commerce.coinbase.com/checkout/demo"
+  });
 });
+
+
+
 
 /* ================= HEALTH ================= */
 
