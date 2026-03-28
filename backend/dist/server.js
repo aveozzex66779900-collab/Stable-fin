@@ -6,22 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
-// Middleware
 app.use(express_1.default.json());
-app.use((0, cors_1.default)({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"]
-}));
-app.options("*", (0, cors_1.default)());
-// ✅ HEALTH CHECK (REQUIRED)
+app.use((0, cors_1.default)({ origin: "*" }));
+// Health
 app.get("/", (req, res) => {
     res.send("Backend Live ✅");
 });
-// ================= ROUTES =================
 // Test
 app.get("/test", (req, res) => {
-    res.json({ success: true, message: "API working 💰" });
+    res.json({ message: "API working 💰" });
 });
 // QR
 app.get("/qr", (req, res) => {
@@ -36,13 +29,10 @@ app.get("/upi-qr", (req, res) => {
 // Crypto
 app.get("/crypto-link", (req, res) => {
     res.json({
-        link: "https://nowpayments.io/payment/?iid=demo123",
-        message: "Crypto payment link generated 🚀"
+        link: "https://nowpayments.io/payment/?iid=demo123"
     });
 });
-// ✅ CRITICAL FIX FOR RENDER
 const PORT = Number(process.env.PORT) || 10000;
-// ⚠️ MUST LISTEN LIKE THIS
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
 });
