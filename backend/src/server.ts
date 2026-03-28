@@ -3,27 +3,17 @@ import cors from "cors";
 
 const app = express();
 
-// Middleware
 app.use(express.json());
+app.use(cors({ origin: "*" }));
 
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-app.options("*", cors());
-
-// ✅ HEALTH CHECK (REQUIRED)
+// Health
 app.get("/", (req, res) => {
   res.send("Backend Live ✅");
 });
 
-// ================= ROUTES =================
-
 // Test
 app.get("/test", (req, res) => {
-  res.json({ success: true, message: "API working 💰" });
+  res.json({ message: "API working 💰" });
 });
 
 // QR
@@ -41,14 +31,12 @@ app.get("/upi-qr", (req, res) => {
 // Crypto
 app.get("/crypto-link", (req, res) => {
   res.json({
-    link: "https://nowpayments.io/payment/?iid=demo123",
-    message: "Crypto payment link generated 🚀"
+    link: "https://nowpayments.io/payment/?iid=demo123"
   });
 });
 
-// ✅ CRITICAL FIX FOR RENDER
 const PORT = Number(process.env.PORT) || 10000;
-// ⚠️ MUST LISTEN LIKE THIS
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
