@@ -1,48 +1,53 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Stable Fin Payment System</title>
+  <title>Stable Fin Payment</title>
 </head>
 
 <body>
+
   <h1>💰 Stable Fin Payment System</h1>
 
-  <button onclick="testAPI()">Test Payment API</button>
-  <button onclick="getQR()">Old QR</button>
-  <button onclick="getUPI()">UPI Payment</button>
-  <button onclick="getCrypto()">Crypto Payment 🚀</button>
+  <button onclick="testAPI()">Test</button>
+  <button onclick="getUPI()">UPI</button>
+  <button onclick="getCrypto()">Crypto</button>
 
   <pre id="output"></pre>
 
   <script>
+    console.log("JS Loaded ✅");
+
     const BASE_URL = "https://stable-fin-backend-1.onrender.com";
 
     async function testAPI() {
+      console.log("Test clicked");
+
       const res = await fetch(`${BASE_URL}/test`);
       const data = await res.json();
-      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-    }
 
-    async function getQR() {
-      const res = await fetch(`${BASE_URL}/qr`);
-      const data = await res.json();
-      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+      document.getElementById("output").innerText =
+        JSON.stringify(data, null, 2);
     }
 
     async function getUPI() {
+      console.log("UPI clicked");
+
       const res = await fetch(`${BASE_URL}/upi-qr`);
       const data = await res.json();
-      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+
+      document.getElementById("output").innerText =
+        JSON.stringify(data, null, 2);
     }
 
     async function getCrypto() {
-      try {
-        const res = await fetch(`${BASE_URL}/crypto-link`);
-        const data = await res.json();
-        document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("output").innerText = "Error: Backend not responding (wait 30s & retry)";
-      }
+      console.log("Crypto clicked");
+
+      const res = await fetch(`${BASE_URL}/crypto-link`);
+      const data = await res.json();
+
+      document.getElementById("output").innerText =
+        JSON.stringify(data, null, 2);
     }
   </script>
 
