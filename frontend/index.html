@@ -12,6 +12,13 @@
   <button onclick="testAPI()">Test</button>
   <button onclick="getUPI()">UPI</button>
   <button onclick="getCrypto()">Crypto</button>
+  <button onclick="createB2B()">Create B2B Payment</button>
+<button onclick="checkB2B()">Check B2B Status</button>
+<button onclick="payB2B()">Simulate Pay</button>
+
+
+
+
 
   <pre id="output"></pre>
 
@@ -49,6 +56,78 @@
       document.getElementById("output").innerText =
         JSON.stringify(data, null, 2);
     }
+
+
+   
+let currentB2BId = null;
+
+// CREATE
+async function createB2B() {
+  const res = await fetch(`${BASE_URL}/b2b/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      company: "Demo Company",
+      amount: 500
+    })
+  });
+
+  const data = await res.json();
+
+  currentB2BId = data.id;
+
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+// STATUS
+async function checkB2B() {
+  if (!currentB2BId) {
+    alert("Create payment first");
+    return;
+  }
+
+  const res = await fetch(`${BASE_URL}/b2b/status/${currentB2BId}`);
+  const data = await res.json();
+
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+// SIMULATE PAY
+async function payB2B() {
+  if (!currentB2BId) {
+    alert("Create payment first");
+    return;
+  }
+
+  const res = await fetch(`${BASE_URL}/b2b/pay/${currentB2BId}`);
+  const data = await res.json();
+
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
 
 </body>

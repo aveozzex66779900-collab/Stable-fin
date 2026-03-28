@@ -8,17 +8,9 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({ origin: "*" }));
-// Health
-app.get("/", (req, res) => {
-    res.send("Backend Live ✅");
-});
-// Test
+// ✅ VERY IMPORTANT ROUTE
 app.get("/test", (req, res) => {
     res.json({ message: "API working 💰" });
-});
-// QR
-app.get("/qr", (req, res) => {
-    res.json({ qr: "QR_CODE_DATA" });
 });
 // UPI
 app.get("/upi-qr", (req, res) => {
@@ -31,6 +23,10 @@ app.get("/crypto-link", (req, res) => {
     res.json({
         link: "https://nowpayments.io/payment/?iid=demo123"
     });
+});
+// Root
+app.get("/", (req, res) => {
+    res.send("Backend Live ✅");
 });
 const PORT = Number(process.env.PORT) || 10000;
 app.listen(PORT, "0.0.0.0", () => {
