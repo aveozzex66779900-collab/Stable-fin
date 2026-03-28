@@ -83,6 +83,70 @@ app.get("/b2b/pay/:id", (req, res) => {
 });
 
 
+let tickets: any = {};
+app.post("/support/create", (req, res) => {
+  const id = Date.now();
+
+  const ticket = {
+    id,
+    name: req.body.name || "User",
+    issue: req.body.issue || "No issue provided",
+    status: "open",
+    createdAt: new Date(),
+    replies: []
+  };
+
+  tickets[id] = ticket;
+
+  res.json(ticket);
+});
+
+app.get("/support/all", (req, res) => {
+  res.json(Object.values(tickets));
+});
+
+app.get("/support/:id", (req, res) => {
+  const ticket = tickets[req.params.id];
+
+  if (!ticket) {
+    return res.json({ error: "Ticket not found" });
+  }
+
+  res.json(ticket);
+});
+
+app.post("/support/reply/:id", (req, res) => {
+  const ticket = tickets[req.params.id];
+
+  if (!ticket) {
+    return res.json({ error: "Ticket not found" });
+  }
+
+  ticket.replies.push({
+    message: req.body.message,
+    time: new Date()
+  });
+
+  res.json(ticket);
+});
+
+app.get("/support/close/:id", (req, res) => {
+  const ticket = tickets[req.params.id];
+
+  if (!ticket) {
+    return res.json({ error: "Ticket not found" });
+  }
+
+  ticket.status = "closed";
+
+  res.json(ticket);
+});
+
+ 
+
+
+
+
 
 
 
