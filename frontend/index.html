@@ -2,23 +2,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Stable Fin Payment</title>
+  
+
+  <style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+}
+
+.card {
+  background: #1e293b;
+  padding: 20px;
+  margin: 20px auto;
+  width: 300px;
+  border-radius: 10px;
+}
+
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #16a34a;
+}
+
+.ticket {
+  background: #1e293b;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+</style>
+
+
+
+
+
 </head>
+
+
 
 <body>
 
-  <h1>💰 Stable Fin Payment System</h1>
+<h1>💰 Stable Fin System</h1>
 
-  <button onclick="testAPI()">Test</button>
-  <button onclick="getUPI()">UPI</button>
-  <button onclick="getCrypto()">Crypto</button>
-  <button onclick="createB2B()">Create B2B Payment</button>
-<button onclick="checkB2B()">Check B2B Status</button>
-<button onclick="payB2B()">Simulate Pay</button>
-<button onclick="createTicket()">Create Ticket</button>
-<button onclick="viewTickets()">View Tickets</button>
-<button onclick="replyTicket()">Reply Ticket</button>
-<button onclick="closeTicket()">Close Ticket</button>
+<div class="card">
+  <h2>📞 Customer Support</h2>
+
+  <input id="name" placeholder="Your Name" />
+  <input id="issue" placeholder="Describe Issue" />
+
+  <button onclick="createTicket()">Create Ticket</button>
+  <button onclick="viewTickets()">View Tickets</button>
+</div>
+
+<div class="card">
+  <h2>💳 Payments</h2>
+
+  <button onclick="getUPI()">UPI Payment</button>
+  <button onclick="getCrypto()">Crypto Payment</button>
+</div>
+
+<div id="tickets"></div>
+<div id="output"></div>
 
 
 
@@ -27,7 +89,10 @@
 
 
 
-  <pre id="output"></pre>
+
+
+
+
 
   <script>
     console.log("JS Loaded ✅");
@@ -124,33 +189,62 @@ let currentTicketId = null;
 
 // CREATE
 async function createTicket() {
+  const name = document.getElementById("name").value;
+  const issue = document.getElementById("issue").value;
+
   const res = await fetch(`${BASE_URL}/support/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      name: "Client",
-      issue: "Payment not received"
-    })
+    body: JSON.stringify({ name, issue })
   });
 
   const data = await res.json();
 
-  currentTicketId = data.id;
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
+  alert("Ticket Created ✅ ID: " + data.id);
 }
 
+
+
+
 // VIEW
+
+
 async function viewTickets() {
   const res = await fetch(`${BASE_URL}/support/all`);
   const data = await res.json();
 
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
+  let html = "";
+
+  data.forEach(t => {
+    html += `
+      <div class="ticket">
+        <b>ID:</b> ${t.id} <br>
+        <b>Name:</b> ${t.name} <br>
+        <b>Issue:</b> ${t.issue} <br>
+        <b>Status:</b> ${t.status}
+      </div>
+    `;
+  });
+
+  document.getElementById("tickets").innerHTML = html;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // REPLY
 async function replyTicket() {
