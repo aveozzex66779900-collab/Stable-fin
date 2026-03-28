@@ -41,4 +41,3 @@ app.get("/transactions", (req, res) => {
         { amount: 20, status: "pending" }
     ]);
 });
-//# sourceMappingURL=app.js.map

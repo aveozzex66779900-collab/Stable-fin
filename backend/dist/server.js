@@ -6,41 +6,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)({ origin: "*" }));
+// Middleware
 app.use(express_1.default.json());
-/* ================= OLD FEATURES (DO NOT TOUCH) ================= */
-// Old QR (dummy)
-app.get("/qr", (req, res) => {
-    res.json({ qr: "QR_CODE_DATA" });
-});
-// Payment test
-app.get("/payment", (req, res) => {
-    res.json({ message: "Payment API working 💰" });
-});
-/* ================= NEW FEATURES (ADDED SAFELY) ================= */
-// ✅ Real UPI QR
-app.get("/upi-qr", (req, res) => {
-    const upiId = "yourupi@upi"; // 🔥 replace
-    const name = "Stable Fin";
-    const amount = "100";
-    const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR`;
-    res.json({ qr: upiLink });
-});
-// ✅ Crypto Payment Link
-app.get("/crypto-link", (req, res) => {
-    const cryptoLink = "https://commerce.coinbase.com/checkout/demo";
-    res.json({ link: cryptoLink });
-});
-/* ================= HEALTH ================= */
+app.use((0, cors_1.default)({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"]
+}));
+app.options("*", (0, cors_1.default)());
+// ✅ HEALTH CHECK (REQUIRED)
 app.get("/", (req, res) => {
     res.send("Backend Live ✅");
 });
-app.get("/health", (req, res) => {
-    res.json({ status: "OK" });
+// ================= ROUTES =================
+// Test
+app.get("/test", (req, res) => {
+    res.json({ success: true, message: "API working 💰" });
 });
-/* ================= SERVER ================= */
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
+// QR
+app.get("/qr", (req, res) => {
+    res.json({ qr: "QR_CODE_DATA" });
+});
+// UPI
+app.get("/upi-qr", (req, res) => {
+    res.json({
+        qr: "upi://pay?pa=yourupi@upi&pn=Stable Fin&am=100&cu=INR"
+    });
+});
+// Crypto
+app.get("/crypto-link", (req, res) => {
+    res.json({
+        link: "https://nowpayments.io/payment/?iid=demo123",
+        message: "Crypto payment link generated 🚀"
+    });
+});
+// ✅ CRITICAL FIX FOR RENDER
+const PORT = Number(process.env.PORT) || 10000;
+// ⚠️ MUST LISTEN LIKE THIS
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
 });
-//# sourceMappingURL=server.js.map

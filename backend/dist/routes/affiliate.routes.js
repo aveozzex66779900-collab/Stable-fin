@@ -5,4 +5,3 @@ const affiliate_controller_1 = require("../controllers/affiliate.controller");
 const router = (0, express_1.Router)();
 router.get("/stats", affiliate_controller_1.affiliateStats);
 exports.default = router;
-//# sourceMappingURL=affiliate.routes.js.map

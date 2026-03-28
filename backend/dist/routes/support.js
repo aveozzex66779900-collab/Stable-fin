@@ -32,4 +32,3 @@ router.get("/all", (_req, res) => {
     });
 });
 exports.default = router;
-//# sourceMappingURL=support.js.map

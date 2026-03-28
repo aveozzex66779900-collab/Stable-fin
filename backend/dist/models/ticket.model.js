@@ -11,4 +11,3 @@ const ticketSchema = new mongoose_1.Schema({
     },
 }, { timestamps: true });
 exports.default = (0, mongoose_1.model)("Ticket", ticketSchema);
-//# sourceMappingURL=ticket.model.js.map
