@@ -1,57 +1,135 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Stable Fin 💰</title>
+  <meta charset="UTF-8" />
+  <title>💰 Stable Fin Payment System</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 40px;
+      background: #0f172a;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      background: #22c55e;
+      color: white;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    #output {
+      margin-top: 20px;
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    #qr-container img {
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>💰 Stable Fin Payment System</h1>
+  <h1>💰 Stable Fin Payment System</h1>
 
-<button onclick="testAPI()">Test Payment API</button>
-<button onclick="getQR()">Old QR</button>
-<button onclick="getUPI()">UPI Payment</button>
-<button onclick="getCrypto()">Crypto Payment 🚀</button>
+  <!-- ✅ BUTTONS -->
+  <button onclick="testAPI()">Test Payment API</button>
+  <button onclick="getUPI()">UPI Payment</button>
+  <button onclick="getCrypto()">Crypto Payment</button>
 
-<div id="output"></div>
-<div id="qr-container"></div>
+  <!-- ✅ OUTPUT -->
+  <div id="output"></div>
 
-<script>
-const API_URL = "https://stable-fin-backend-1.onrender.com";
-// Test API
-async function testAPI() {
-  const res = await fetch(`${API_URL}/payment`);
-  const data = await res.json();
-  document.getElementById("output").innerText = JSON.stringify(data);
-}
+  <!-- ✅ QR -->
+  <div id="qr-container"></div>
 
-// Old QR
-async function getQR() {
-  const res = await fetch(`${API_URL}/qr`);
-  const data = await res.json();
-  document.getElementById("output").innerText = JSON.stringify(data);
-}
+  <!-- ✅ SCRIPT -->
+  <script>
+    console.log("JS Loaded ✅");
 
-// UPI QR
-async function getUPI() {
-  const res = await fetch(`${API_URL}/upi-qr`);
-  const data = await res.json();
+    const API_URL = "https://stable-fin-backend-1.onrender.com";
 
-  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.qr)}`;
+    // ✅ TEST API
+    async function testAPI() {
+      try {
+        const res = await fetch(`${API_URL}/payment`);
+        const data = await res.json();
 
-  document.getElementById("qr-container").innerHTML = `
-    <h3>Scan & Pay (UPI)</h3>
-    <img src="${qrImage}" />
-  `;
-}
+        document.getElementById("output").innerText =
+          JSON.stringify(data, null, 2);
 
-// Crypto
-async function getCrypto() {
-  const res = await fetch(`${API_URL}/crypto-link`);
-  const data = await res.json();
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText =
+          "❌ API Error";
+      }
+    }
 
-  window.open(data.link, "_blank");
-}
-</script>
+    // ✅ UPI QR
+    async function getUPI() {
+      try {
+        const res = await fetch(`${API_URL}/upi-qr`);
+        const data = await res.json();
+
+        const qrImage =
+          "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
+          encodeURIComponent(data.qr);
+
+        document.getElementById("qr-container").innerHTML =
+          `<img src="${qrImage}" />`;
+
+        document.getElementById("output").innerText =
+          "✅ Scan QR to Pay";
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText =
+          "❌ UPI Error";
+      }
+    }
+
+    // ✅ CRYPTO PAYMENT
+    async function getCrypto() {
+      try {
+        const res = await fetch(`${API_URL}/crypto-link`);
+        const data = await res.json();
+
+        console.log("Crypto:", data);
+
+        const link = data.link || data.url;
+
+        if (link) {
+          window.open(link, "_blank");
+        } else {
+          document.getElementById("output").innerText =
+            "❌ No crypto link received";
+        }
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText =
+          "❌ Crypto Error";
+      }
+    }
+  </script>
 
 </body>
 </html>
