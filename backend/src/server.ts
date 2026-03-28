@@ -3,53 +3,42 @@ import cors from "cors";
 
 const app = express();
 
-// ✅ Middleware
+// Middleware
 app.use(express.json());
-
-// ✅ FIXED CORS (VERY IMPORTANT)
-
 
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
+
 app.options("*", cors());
 
-
-
-// ✅ HEALTH CHECK (Render needs this)
+// ✅ HEALTH CHECK (REQUIRED)
 app.get("/", (req, res) => {
   res.send("Backend Live ✅");
 });
 
-// ================= EXISTING FEATURES (SAFE) =================
+// ================= ROUTES =================
 
-// QR API
-app.get("/qr", (req, res) => {
-  res.json({
-    qr: "QR_CODE_DATA"
-  });
+// Test
+app.get("/test", (req, res) => {
+  res.json({ success: true, message: "API working 💰" });
 });
 
-// UPI QR API
+// QR
+app.get("/qr", (req, res) => {
+  res.json({ qr: "QR_CODE_DATA" });
+});
+
+// UPI
 app.get("/upi-qr", (req, res) => {
   res.json({
     qr: "upi://pay?pa=yourupi@upi&pn=Stable Fin&am=100&cu=INR"
   });
 });
 
-// Test API
-app.get("/test", (req, res) => {
-  res.json({
-    success: true,
-    message: "Payment API working 💰"
-  });
-});
-
-// ================= NEW FEATURE (SAFE ADD) =================
-
-// ✅ CRYPTO PAYMENT LINK
+// Crypto
 app.get("/crypto-link", (req, res) => {
   res.json({
     link: "https://nowpayments.io/payment/?iid=demo123",
@@ -57,11 +46,9 @@ app.get("/crypto-link", (req, res) => {
   });
 });
 
-// ================= SERVER =================
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
+// ✅ CRITICAL FIX FOR RENDER
+const PORT = Number(process.env.PORT) || 10000;
+// ⚠️ MUST LISTEN LIKE THIS
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
-
