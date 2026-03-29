@@ -147,29 +147,51 @@ app.get("/support/close/:id", (req, res) => {
 
 // ================= REAL PAYMENT (SAFE ADD) =================
 
-import Razorpay from "razorpay";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || ""
-});
+let razorpay: any = null;
+
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  const Razorpay = require("razorpay");
+
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+  });
+}
+
+
+
+
 
 // Create Order
-app.post("/real/create-order", async (req, res) => {
-  try {
-    const options = {
-      amount: (req.body.amount || 100) * 100,
-      currency: "INR",
-      receipt: "receipt_" + Date.now()
-    };
 
-    const order = await razorpay.orders.create(options);
+
+
+
+
+app.post("/real/create-order", async (req, res) => {
+  if (!razorpay) {
+    return res.json({
+      error: "Razorpay not configured"
+    });
+  }
+
+  try {
+    const order = await razorpay.orders.create({
+      amount: (req.body.amount || 100) * 100,
+      currency: "INR"
+    });
+
     res.json(order);
 
   } catch (err) {
     res.status(500).json({ error: "Payment error" });
   }
 });
+
+
+
+
 
 
 
