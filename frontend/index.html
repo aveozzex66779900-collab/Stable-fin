@@ -75,6 +75,13 @@ button:hover {
 <div class="card">
   <h2>💳 Payments</h2>
 
+<button onclick="realPay()">Real UPI Pay</button>
+
+
+
+
+
+
   <button onclick="getUPI()">UPI Payment</button>
   <button onclick="getCrypto()">Crypto Payment</button>
 </div>
@@ -299,6 +306,46 @@ async function closeTicket() {
 
 
   </script>
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+async function realPay() {
+  const res = await fetch(`${BASE_URL}/real/create-order`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ amount: 100 })
+  });
+
+  const order = await res.json();
+
+  const options = {
+    key: "YOUR_RAZORPAY_KEY", // replace later
+    amount: order.amount,
+    currency: "INR",
+    name: "Stable Fin",
+    order_id: order.id,
+    handler: function (response) {
+      alert("Payment Successful ✅");
+      console.log(response);
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+</script>
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
