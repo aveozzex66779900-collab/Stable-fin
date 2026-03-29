@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import axios from "axios";
 
 const app = express();
 
@@ -144,7 +145,63 @@ app.get("/support/close/:id", (req, res) => {
 
  
 
+// ================= REAL PAYMENT (SAFE ADD) =================
 
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || "",
+  key_secret: process.env.RAZORPAY_KEY_SECRET || ""
+});
+
+// Create Order
+app.post("/real/create-order", async (req, res) => {
+  try {
+    const options = {
+      amount: (req.body.amount || 100) * 100,
+      currency: "INR",
+      receipt: "receipt_" + Date.now()
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+
+  } catch (err) {
+    res.status(500).json({ error: "Payment error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+app.post("/real/crypto", async (req, res) => {
+  try {
+    const response = await axios.post(
+      "https://api.nowpayments.io/v1/payment",
+      {
+        price_amount: 10,
+        price_currency: "usd",
+        pay_currency: "btc"
+      },
+      {
+        headers: {
+          "x-api-key": process.env.NOWPAYMENTS_API_KEY || ""
+        }
+      }
+    );
+
+    res.json(response.data);
+
+  } catch (err) {
+    res.status(500).json({ error: "Crypto error" });
+  }
+});
 
 
 
