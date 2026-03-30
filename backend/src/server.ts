@@ -168,30 +168,20 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 
 
 
+app.post("/real/create-order", (req, res) => {
+  console.log("🔥 CREATE ORDER HIT");
 
-app.post("/real/create-order", async (req, res) => {
-  if (!razorpay) {
-    return res.json({
-      error: "Razorpay not configured"
-    });
-  }
+  const { amount } = req.body;
 
-  try {
-    const order = await razorpay.orders.create({
-      amount: (req.body.amount || 100) * 100,
-      currency: "INR"
-    });
+  console.log("Amount:", amount);
 
-    res.json(order);
-
-  } catch (err) {
-    res.status(500).json({ error: "Payment error" });
-  }
+  // ✅ ALWAYS RETURN DEMO ORDER
+  return res.json({
+    id: "order_demo_" + Date.now(),
+    amount: Number(amount) * 100,
+    currency: "INR"
+  });
 });
-
-
-
-
 
 
 
@@ -227,7 +217,25 @@ app.post("/real/crypto", async (req, res) => {
 
 
 
+async function realPay() {
+  
+  
+  const amount = (document.getElementById("payAmount") as HTMLInputElement).value;
 
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  alert("Demo Payment Successful ✅");
+
+  document.getElementById("output").innerText =
+    JSON.stringify({
+      status: "success",
+      amount: amount,
+      method: "UPI DEMO"
+    }, null, 2);
+}
 
 
 
