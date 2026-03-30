@@ -59,11 +59,79 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 </head>
 
+
+<script>
+function generateQR() {
+  console.log("Generate QR clicked");
+
+  const amountInput = document.getElementById("qrAmount");
+  const container = document.getElementById("qrContainer");
+
+  if (!amountInput || !container) {
+    alert("HTML element missing ❌");
+    return;
+  }
+
+  const amount = amountInput.value;
+
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  // ✅ UPI LINK
+  const upiLink = `upi://pay?pa=test@upi&pn=StableFin&am=${amount}&cu=INR`;
+
+  // ✅ QR IMAGE
+  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+
+  // ✅ INSERT INTO PAGE
+  container.innerHTML = `
+    <div style="text-align:center;">
+      <img src="${qrImage}" /><br><br>
+      <button onclick="payNow('${upiLink}')">Pay via UPI</button>
+    </div>
+  `;
+
+  document.getElementById("output").innerText = "QR Generated ✅";
+}
+
+// ✅ PAY FUNCTION
+function payNow(link) {
+  console.log("Pay clicked:", link);
+  window.location.href = link;
+}
+</script>
+
+
+
+
+
+
 <body>
+
+<h3>QR Payment</h3>
+
+<input id="qrAmount" type="number" placeholder="Enter amount" />
+
+<br><br>
+
+<button onclick="generateQR()">Generate QR</button>
+
+<br><br>
+
+<div id="qrContainer"></div>
+
+<pre id="output"></pre>
+
+
+
+
+
 
 <h1>💰 Stable Fin Payment System</h1>
 
@@ -74,6 +142,7 @@
   <input id="issue" placeholder="Issue" />
   <button onclick="createTicket()">Create Ticket</button>
   <button onclick="viewTickets()">View Tickets</button>
+  <button>Crypto Pay</button>
 </div>
 
 <!-- PAYMENTS -->
@@ -84,16 +153,10 @@
   <button onclick="testBtn()">Test Button</button>
   <button onclick="realPay()">Real UPI Pay</button>
   <button onclick="getUPI()">Test UPI</button>
-  <button onclick="getCrypto()">Crypto Pay</button>
+  <button onclick="cryptoPay()">Crypto Pay</button>
 </div>
 
-<!-- QR GENERATE -->
-<div class="card">
-  <h2>📲 Generate QR</h2>
-  <input id="amount" placeholder="Enter amount" />
-  <button onclick="generateQR()">Generate QR</button>
-  <div id="qrContainer"></div>
-</div>
+
 
 <!-- QR SCANNER -->
 <div class="card">
@@ -153,42 +216,128 @@ async function viewTickets() {
 
 
 
-  async function realPay() {
+
+
+
+async function realPay() {
   const amount = document.getElementById("payAmount").value;
+
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  console.log("Real Pay clicked");
 
   const res = await fetch(`${BASE_URL}/real/create-order`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ amount })
   });
 
   const order = await res.json();
 
-  console.log("ORDER RESPONSE 👉", order); // 👈 ADD THIS
+  console.log("ORDER:", order);
 
   if (!order.id) {
-    alert("Order not created ❌");
+    alert("Order not created");
     return;
   }
 
-  alert("Order created ✅");
+  // ✅ DEMO MODE (no real key)
+  if (order.id.startsWith("order_demo")) {
+    alert("Demo Payment Success ✅");
+
+    document.getElementById("output").innerText =
+      JSON.stringify({
+        status: "success",
+        amount: amount
+      }, null, 2);
+
+    return;
+  }
+
+  // ✅ REAL PAYMENT (when key exists)
+  const options = {
+    key: "rzp_test_xxxxx", // your key
+    amount: order.amount,
+    currency: "INR",
+    name: "Stable Fin",
+    description: "Payment",
+    order_id: order.id,
+
+    handler: function (response) {
+      console.log("PAYMENT SUCCESS:", response);
+
+      document.getElementById("output").innerText =
+        JSON.stringify(response, null, 2);
+
+      alert("Payment Successful ✅");
+    },
+
+    modal: {
+      ondismiss: function () {
+        alert("Payment Cancelled ❌");
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
+
+
+
+
+
+
+  
 
 
 
 // ================= QR GENERATE =================
 
 function generateQR() {
-  const amount = document.getElementById("amount").value || 100;
+  const amountInput = document.getElementById("qrAmount");
 
-  const upiLink = `upi://pay?pa=yourupi@upi&pn=StableFin&am=${amount}&cu=INR`;
+  if (!amountInput) {
+    alert("Amount input not found ❌");
+    return;
+  }
 
-  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+  const amount = amountInput.value;
 
-  document.getElementById("qrContainer").innerHTML =
-    `<img src="${qr}" /><br><a href="${upiLink}">Pay Now</a>`;
-}cd
+  if (!amount || amount <= 0) {
+    alert("Enter valid amount");
+    return;
+  }
 
+  console.log("Generate QR clicked:", amount);
+
+  // ✅ Create UPI link
+  const upiLink = `upi://pay?pa=test@upi&pn=StableFin&am=${amount}&cu=INR`;
+
+  // ✅ Generate QR image
+  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
+
+  // ✅ Show QR + Pay button
+  document.getElementById("qrContainer").innerHTML = `
+    <div style="text-align:center;">
+      <img src="${qrImage}" alt="QR Code"/><br><br>
+
+      <button onclick="payNow('${upiLink}')" 
+        style="padding:10px 20px; background:green; color:white; border:none; border-radius:6px;">
+        Pay via UPI
+      </button>
+    </div>
+  `;
+
+  // ✅ Show output
+  const output = document.getElementById("output");
+  if (output) {
+    output.innerText = "QR Generated ✅";
+  }
+}
 // ================= QR SCANNER =================
 
 let scanner;
@@ -216,6 +365,68 @@ function testBtn() {
   console.log("Button working ✅");
   alert("Button OK");
 }
+
+function payNow(link) {
+  console.log("Pay clicked:", link);
+
+  // Open UPI app
+  window.location.href = link;
+
+  // ✅ Show pending message
+  document.getElementById("output").innerText =
+    "Waiting for payment... ⏳";
+
+  // ✅ Simulate success after 5 sec
+  setTimeout(() => {
+    document.getElementById("output").innerText =
+      "Payment Successful ✅ (Demo)";
+  }, 5000);
+}
+
+
+async function cryptoPay() {
+  console.log("Crypto Pay clicked");
+
+  try {
+    const res = await fetch(`${BASE_URL}/crypto-link`);
+    const data = await res.json();
+
+    console.log("CRYPTO RESPONSE:", data);
+
+    if (!data || !data.link) {
+      document.getElementById("output").innerText =
+        "Crypto link not received ❌";
+      return;
+    }
+
+    // ✅ Show link
+    document.getElementById("output").innerHTML = `
+      Crypto Payment Link:<br><br>
+      <a href="${data.link}" target="_blank">${data.link}</a>
+    `;
+
+    // ✅ OPTIONAL: auto open
+    window.open(data.link, "_blank");
+
+  } catch (err) {
+    console.log(err);
+    document.getElementById("output").innerText =
+      "Crypto API error ❌";
+  }
+}
+
+
+app.get("/crypto-link", (req, res) => {
+  console.log("🔥 CRYPTO API HIT");
+
+  res.json({
+    link: "https://commerce.coinbase.com/checkout/demo"
+  });
+});
+
+
+
+
 </script>
 
 
