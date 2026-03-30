@@ -1,351 +1,250 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  
+  <title>Stable Fin System</title>
+
+  <!-- Razorpay -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  text-align: center;
-}
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
 
-.card {
-  background: #1e293b;
-  padding: 20px;
-  margin: 20px auto;
-  width: 300px;
-  border-radius: 10px;
-}
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      width: 320px;
+      border-radius: 10px;
+    }
 
-input {
-  width: 90%;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 6px;
-  border: none;
-}
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+    }
 
-button {
-  margin: 5px;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background: #22c55e;
-  color: white;
-  cursor: pointer;
-}
+    button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #22c55e;
+      color: white;
+      cursor: pointer;
+    }
 
-button:hover {
-  background: #16a34a;
-}
+    #qrContainer img {
+      width: 200px;
+      margin-top: 10px;
+    }
 
-.ticket {
-  background: #1e293b;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 8px;
-}
-</style>
-
-
-
-
-
+    .ticket {
+      background: #334155;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+    }
+  </style>
 </head>
-
-
 
 <body>
 
-<h1>💰 Stable Fin System</h1>
+<h1>💰 Stable Fin Payment System</h1>
 
+<!-- SUPPORT -->
 <div class="card">
-  <h2>📞 Customer Support</h2>
-
+  <h2>📞 Support</h2>
   <input id="name" placeholder="Your Name" />
-  <input id="issue" placeholder="Describe Issue" />
-
+  <input id="issue" placeholder="Issue" />
   <button onclick="createTicket()">Create Ticket</button>
   <button onclick="viewTickets()">View Tickets</button>
 </div>
 
+<!-- PAYMENTS -->
 <div class="card">
   <h2>💳 Payments</h2>
 
-<button onclick="realPay()">Real UPI Pay</button>
+  <input id="payAmount" placeholder="Enter amount ₹" />
 
-
-
-
-
-
-  <button onclick="getUPI()">UPI Payment</button>
-  <button onclick="getCrypto()">Crypto Payment</button>
+  <button onclick="realPay()">Real UPI Pay</button>
+  <button onclick="getUPI()">Test UPI</button>
+  <button onclick="getCrypto()">Crypto Pay</button>
 </div>
 
+<!-- QR GENERATE -->
+<div class="card">
+  <h2>📲 Generate QR</h2>
+  <input id="amount" placeholder="Enter amount" />
+  <button onclick="generateQR()">Generate QR</button>
+  <div id="qrContainer"></div>
+</div>
+
+<!-- QR SCANNER -->
+<div class="card">
+  <h2>📷 Scan QR</h2>
+  <button onclick="startScanner()">Start</button>
+  <button onclick="stopScanner()">Stop</button>
+  <div id="preview"></div>
+  <div id="scanResult"></div>
+</div>
+
+<!-- OUTPUT -->
 <div id="tickets"></div>
-<div id="output"></div>
+<pre id="output"></pre>
 
+<script>
+const BASE_URL = "https://stable-fin-backend-1.onrender.com";
 
+console.log("JS Loaded ✅");
 
+// ================= SUPPORT =================
 
-
-
-
-
-
-
-
-
-
-  <script>
-    console.log("JS Loaded ✅");
-
-    const BASE_URL = "https://stable-fin-backend-1.onrender.com";
-
-    async function testAPI() {
-      console.log("Test clicked");
-
-      const res = await fetch(`${BASE_URL}/test`);
-      const data = await res.json();
-
-      document.getElementById("output").innerText =
-        JSON.stringify(data, null, 2);
-    }
-
-    async function getUPI() {
-      console.log("UPI clicked");
-
-      const res = await fetch(`${BASE_URL}/upi-qr`);
-      const data = await res.json();
-
-      document.getElementById("output").innerText =
-        JSON.stringify(data, null, 2);
-    }
-
-    async function getCrypto() {
-      console.log("Crypto clicked");
-
-      const res = await fetch(`${BASE_URL}/crypto-link`);
-      const data = await res.json();
-
-      document.getElementById("output").innerText =
-        JSON.stringify(data, null, 2);
-    }
-
-
-   
-let currentB2BId = null;
-
-// CREATE
-async function createB2B() {
-  const res = await fetch(`${BASE_URL}/b2b/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      company: "Demo Company",
-      amount: 500
-    })
-  });
-
-  const data = await res.json();
-
-  currentB2BId = data.id;
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
-}
-
-// STATUS
-async function checkB2B() {
-  if (!currentB2BId) {
-    alert("Create payment first");
-    return;
-  }
-
-  const res = await fetch(`${BASE_URL}/b2b/status/${currentB2BId}`);
-  const data = await res.json();
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
-}
-
-// SIMULATE PAY
-async function payB2B() {
-  if (!currentB2BId) {
-    alert("Create payment first");
-    return;
-  }
-
-  const res = await fetch(`${BASE_URL}/b2b/pay/${currentB2BId}`);
-  const data = await res.json();
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
-}
-
-
-
-
-let currentTicketId = null;
-
-// CREATE
 async function createTicket() {
   const name = document.getElementById("name").value;
   const issue = document.getElementById("issue").value;
 
   const res = await fetch(`${BASE_URL}/support/create`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ name, issue })
   });
 
   const data = await res.json();
-
-  alert("Ticket Created ✅ ID: " + data.id);
+  alert("Ticket Created ID: " + data.id);
 }
-
-
-
-
-// VIEW
-
 
 async function viewTickets() {
   const res = await fetch(`${BASE_URL}/support/all`);
   const data = await res.json();
 
   let html = "";
-
   data.forEach(t => {
-    html += `
-      <div class="ticket">
-        <b>ID:</b> ${t.id} <br>
-        <b>Name:</b> ${t.name} <br>
-        <b>Issue:</b> ${t.issue} <br>
-        <b>Status:</b> ${t.status}
-      </div>
-    `;
+    html += `<div class="ticket">
+      <b>ID:</b> ${t.id}<br>
+      <b>Name:</b> ${t.name}<br>
+      <b>Issue:</b> ${t.issue}<br>
+      <b>Status:</b> ${t.status}
+    </div>`;
   });
 
   document.getElementById("tickets").innerHTML = html;
 }
 
+// ================= TEST PAYMENTS =================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// REPLY
-async function replyTicket() {
-  if (!currentTicketId) {
-    alert("Create ticket first");
-    return;
-  }
-
-  const res = await fetch(`${BASE_URL}/support/reply/${currentTicketId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: "We are checking your issue"
-    })
-  });
-
+async function getUPI() {
+  const res = await fetch(`${BASE_URL}/upi-qr`);
   const data = await res.json();
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
+  document.getElementById("output").innerText = JSON.stringify(data, null, 2);
 }
 
-// CLOSE
-async function closeTicket() {
-  if (!currentTicketId) {
-    alert("Create ticket first");
-    return;
-  }
-
-  const res = await fetch(`${BASE_URL}/support/close/${currentTicketId}`);
+async function getCrypto() {
+  const res = await fetch(`${BASE_URL}/crypto-link`);
   const data = await res.json();
-
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
+  document.getElementById("output").innerText = JSON.stringify(data, null, 2);
 }
 
+// ================= REAL PAYMENT =================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  </script>
-
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<script>
 async function realPay() {
-  const res = await fetch(`${BASE_URL}/real/create-order`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ amount: 100 })
-  });
+  console.log("RealPay clicked");
 
-  const order = await res.json();
+  const amount = document.getElementById("payAmount").value;
 
-  const options = {
-    key: "YOUR_RAZORPAY_KEY", // replace later
-    amount: order.amount,
-    currency: "INR",
-    name: "Stable Fin",
-    order_id: order.id,
-    handler: function (response) {
-      alert("Payment Successful ✅");
-      console.log(response);
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/real/create-order`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ amount: Number(amount) })
+    });
+
+    const order = await res.json();
+    console.log(order);
+
+    if (!order.id) {
+      alert("Order not created");
+      return;
     }
-  };
 
-  const rzp = new Razorpay(options);
-  rzp.open();
+    const options = {
+      key: "rzp_test_xxxxx", // 🔴 replace with your key
+      amount: order.amount,
+      currency: "INR",
+      name: "Stable Fin",
+      description: "Payment",
+      order_id: order.id,
+
+      handler: function (response) {
+        alert("Payment Successful ✅");
+        console.log(response);
+
+        document.getElementById("output").innerText =
+          JSON.stringify(response, null, 2);
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error(err);
+    alert("Backend error");
+  }
+}
+
+// ================= QR GENERATE =================
+
+function generateQR() {
+  const amount = document.getElementById("amount").value || 100;
+
+  const upiLink = `upi://pay?pa=yourupi@upi&pn=StableFin&am=${amount}&cu=INR`;
+
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+
+  document.getElementById("qrContainer").innerHTML =
+    `<img src="${qr}" /><br><a href="${upiLink}">Pay Now</a>`;
+}cd
+
+// ================= QR SCANNER =================
+
+let scanner;
+
+function startScanner() {
+  scanner = new Html5Qrcode("preview");
+
+  scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (text) => {
+      document.getElementById("scanResult").innerHTML =
+        `<a href="${text}" target="_blank">Pay Now</a>`;
+      scanner.stop();
+    }
+  );
+}
+
+function stopScanner() {
+  if (scanner) {
+    scanner.stop();
+  }
 }
 </script>
-
-
-
-
-
-
-
-
-
-
 
 </body>
 </html>
